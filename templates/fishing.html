@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>fishing</title>
+    <script type="text/javascript">
+         var ws;
+
+        function init() {
+            ws = new WebSocket("ws://localhost:8080/fishing");
+            ws.onopen = function (event) {
+
+            }
+            ws.onmessage = function (event) {
+                var message = JSON.parse(event.data);
+                var user = message[0];
+                document.getElementById("status").innerHTML = "Продолжай, " + user.name + "!!!<br/> У тебя уже (" + user.score + ") очков!!!";
+                var fish = message[1];
+                document.getElementById("picture").src = "img/fish" + fish.imagePath;
+                document.getElementById("result").textContent = fish.name + " " + fish.score +" очков!!! "
+                var $textarea = document.getElementById("messages");
+                if(fish.name != "ботинок" && fish.name != "ничего"){
+                   $textarea.value = "Вы поймали рыбу " + fish.name + " и заработали " + fish.score + " очков!\n" + $textarea.value;
+                } else if (fish.name == "ботинок"){
+                   $textarea.value = "Вы поймали " + fish.name + " и заработали " + fish.score + " очков!\n" + $textarea.value;
+                } else if (fish.name == "ничего"){
+                   $textarea.value = "Вы ничего не поймали и не заработали очков!\n" + $textarea.value;
+                }
+            }
+            ws.onclose = function (event) {
+
+            }
+        };
+
+        function sendMessage() {
+           ws.send("fish");
+
+        }
+    </script>
+</head>
+<body onload="init();">
+<div id="body">
+    <div id="welcome">
+        <h1 id="status">
+            Порыбачим, ${username}?<br/>
+            Забрасывайте удочку!
+        </h1>
+    </div>
+    <div id="catch">
+        <img id="picture" src="img/fish/default.jpg" width="300" height="150"/>
+        <h1 id="result">жмите кнопку</h1>
+    </div>
+    <form name="message" action="">
+        <input id="getfishbutton" type="button" name="getfish" value="Забросить удочку" onclick="sendMessage();"/>
+    </form>
+    <div id="fishinglog">
+        <textarea id="messages" rows="20" cols="50" readonly="readonly"></textarea>
+    </div>
+</div>
+</body>
+</html>
